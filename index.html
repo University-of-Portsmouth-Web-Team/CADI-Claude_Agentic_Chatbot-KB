@@ -6,22 +6,57 @@
   <title>CADI Search</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@300;400;500;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0f1e38; }
-    input::placeholder { color: rgba(136,153,184,0.7); }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
+    :root {
+      --primary-dark:   #3C023C;
+      --primary:        #621360;
+      --secondary-dark: #0078B4;
+      --secondary:      #00A0FF;
+      --black:          #000000;
+      --dark-grey:      #505457;
+      --mid-grey:       #ABAAAA;
+      --light-grey:     #D1D1D1;
+      --lighter-grey:   #F7F7F7;
+      --off-white:      #FAFAFA;
+      --white:          #FFFFFF;
+    }
+
+    body {
+      background: var(--primary-dark);
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    input::placeholder { color: rgba(171,170,170,0.6); }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
     @keyframes bounce {
-      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      0%, 100% { transform: translateY(0); opacity: 0.45; }
       50%       { transform: translateY(-6px); opacity: 1; }
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+
+    /* Decorative diagonal accent band in header */
+    .header-accent {
+      position: absolute;
+      top: 0; right: 0;
+      width: 220px; height: 100%;
+      background: linear-gradient(135deg, transparent 40%, rgba(0,160,255,0.08) 40%);
+      pointer-events: none;
     }
   </style>
 </head>
@@ -32,19 +67,13 @@
 // ============================================================================
 // CONFIGURATION — update these two values before deploying
 // ============================================================================
-
-// 1. Your Cloudflare Worker URL (from worker.js deployment).
-//    The API key lives there — never put it here.
 const PROXY_URL = "https://cadi-search-proxy.kristian-band.workers.dev";
 
-// 2. Raw URL to your search-index.json on GitHub.
-//    After running the GitHub Action crawler, grab the raw URL from:
-//    your repo → search-index.json → Raw button → copy URL
 const GITHUB_RAW_INDEX_URL =
   "https://raw.githubusercontent.com/University-of-Portsmouth-Web-Team/CADI_Claude_Agentic_Search/main/search-index.json";
 
 // ============================================================================
-// PRIORITY PAGES — boosted in results for relevant queries
+// PRIORITY PAGES
 // ============================================================================
 const PRIORITY_PAGES = [
   {
@@ -58,7 +87,7 @@ const PRIORITY_PAGES = [
 ];
 
 // ============================================================================
-// EXTERNAL LINKS — surfaced directly when matched by keyword
+// EXTERNAL LINKS
 // ============================================================================
 const EXTERNAL_LINKS = [
   {
@@ -82,7 +111,7 @@ const EXTERNAL_LINKS = [
 ];
 
 // ============================================================================
-// EXAMPLE PROMPTS shown below the search box
+// EXAMPLE PROMPTS
 // ============================================================================
 const EXAMPLE_PROMPTS = [
   "How do I get AdvanceHE Fellowship?",
@@ -93,9 +122,7 @@ const EXAMPLE_PROMPTS = [
 ];
 
 // ============================================================================
-// STATIC FALLBACK INDEX
-// Used if the GitHub index cannot be fetched (e.g. CORS, offline).
-// Replace with your own pages or leave as-is for demo purposes.
+// FALLBACK INDEX
 // ============================================================================
 const FALLBACK_INDEX = [
   { id: 1, url: "https://cadi.port.ac.uk/cpd-support", title: "CPD and Support", excerpt: "The main hub for Continuing Professional Development opportunities at the University of Portsmouth.", content: "CPD opportunities including workshops on active blended learning, assessment design, digital tools, AdvanceHE fellowship pathways, PGCertHE, and peer observation schemes. Timetabled sessions throughout the academic year.", type: "page", tags: ["cpd", "professional development", "fellowship", "workshops", "training"], date: "2026-03-01" },
@@ -111,29 +138,45 @@ const FALLBACK_INDEX = [
 ];
 
 // ============================================================================
-// STYLING CONSTANTS
+// BRAND COLOURS
 // ============================================================================
-const COLORS = {
-  navy:      "#1b2a4a",
-  navyDark:  "#0f1e38",
-  gold:      "#c9a84c",
-  text:      "#f0f4fa",
-  subtext:   "#aab8d0",
-  muted:     "#8899b8",
-  border:    "rgba(255,255,255,0.1)",
-  card:      "rgba(255,255,255,0.04)",
-  cardHover: "rgba(255,255,255,0.07)",
+const C = {
+  primaryDark:   "#3C023C",
+  primary:       "#621360",
+  secondaryDark: "#0078B4",
+  secondary:     "#00A0FF",
+  black:         "#000000",
+  darkGrey:      "#505457",
+  midGrey:       "#ABAAAA",
+  lightGrey:     "#D1D1D1",
+  lighterGrey:   "#F7F7F7",
+  offWhite:      "#FAFAFA",
+  white:         "#FFFFFF",
+};
+
+// Derived surface/text tokens
+const T = {
+  bg:         C.primaryDark,
+  bgMid:      C.primary,
+  accent:     C.secondary,
+  accentDark: C.secondaryDark,
+  text:       C.offWhite,
+  subtext:    C.lightGrey,
+  muted:      C.midGrey,
+  border:     "rgba(255,255,255,0.1)",
+  card:       "rgba(255,255,255,0.04)",
+  cardHover:  "rgba(255,255,255,0.07)",
 };
 
 const TYPE_CONFIG = {
-  page:     { bg: "#E8F0FE", text: "#1557B0", label: "Page" },
-  event:    { bg: "#FEF3E2", text: "#B45309", label: "Event" },
-  resource: { bg: "#DCFCE7", text: "#166534", label: "Resource" },
-  guide:    { bg: "#F3E8FF", text: "#6B21A8", label: "Guide" },
+  page:     { bg: "rgba(98,19,96,0.35)",   border: "rgba(98,19,96,0.6)",   text: "#E8C8E8", label: "Page"     },
+  event:    { bg: "rgba(0,120,180,0.25)",  border: "rgba(0,120,180,0.5)",  text: "#A8D8F0", label: "Event"    },
+  resource: { bg: "rgba(0,160,255,0.18)",  border: "rgba(0,160,255,0.4)",  text: "#B8E4FF", label: "Resource" },
+  guide:    { bg: "rgba(60,2,60,0.4)",     border: "rgba(60,2,60,0.7)",    text: "#DEC8DE", label: "Guide"    },
 };
 
 // ============================================================================
-// APP COMPONENT
+// APP
 // ============================================================================
 const { useState, useCallback, useEffect, useRef } = React;
 
@@ -147,20 +190,17 @@ function App() {
   const [pageIndex, setPageIndex] = useState(FALLBACK_INDEX);
   const inputRef = useRef(null);
 
-  // Try to fetch the live GitHub index on mount
   useEffect(() => {
     if (GITHUB_RAW_INDEX_URL.includes("YOUR-ORG")) {
-      setIndexing(false); // using fallback demo index
+      setIndexing(false);
       return;
     }
     fetch(GITHUB_RAW_INDEX_URL)
       .then(r => r.json())
       .then(data => {
-        if (data.pages && data.pages.length > 0) {
-          setPageIndex(data.pages);
-        }
+        if (data.pages && data.pages.length > 0) setPageIndex(data.pages);
       })
-      .catch(() => { /* silently use fallback */ })
+      .catch(() => {})
       .finally(() => setIndexing(false));
   }, []);
 
@@ -196,7 +236,7 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
 
     try {
       const endpoint = PROXY_URL.includes("YOUR-SUBDOMAIN")
-        ? "https://api.anthropic.com/v1/messages"   // demo fallback (will fail without key — expected)
+        ? "https://api.anthropic.com/v1/messages"
         : PROXY_URL;
 
       const resp = await fetch(endpoint, {
@@ -222,8 +262,8 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
       const data = await resp.json();
       if (data.error) throw new Error(data.error.message || "API error");
 
-      const raw   = (data.content || []).find(b => b.type === "text")?.text || "{}";
-      const clean = raw.replace(/```json|```/g, "").trim();
+      const raw    = (data.content || []).find(b => b.type === "text")?.text || "{}";
+      const clean  = raw.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(clean);
 
       const enriched = (parsed.results || [])
@@ -251,66 +291,422 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
   const handleKeyDown = (e) => { if (e.key === "Enter") runSearch(query); };
   const handleClear   = () => { setResults(null); setQuery(""); setSubmitted(""); inputRef.current?.focus(); };
 
-  // ── Render ──────────────────────────────────────────────────────────────
+  // ─── Styles ────────────────────────────────────────────────────────────────
+  const s = {
+    wrap: {
+      fontFamily: "'Open Sans', sans-serif",
+      background: `linear-gradient(160deg, ${C.primaryDark} 0%, ${C.primary} 60%, ${C.primaryDark} 100%)`,
+      minHeight: "100vh",
+      color: T.text,
+    },
+    header: {
+      position: "relative",
+      overflow: "hidden",
+      background: "rgba(0,0,0,0.35)",
+      borderBottom: `2px solid ${C.secondary}`,
+      padding: "14px 32px",
+      display: "flex",
+      alignItems: "center",
+      gap: 14,
+    },
+    logoMark: {
+      width: 36, height: 36,
+      background: `linear-gradient(135deg, ${C.secondary} 0%, ${C.secondaryDark} 100%)`,
+      borderRadius: 6,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontWeight: 800,
+      fontSize: 13,
+      color: C.white,
+      letterSpacing: 0.5,
+      flexShrink: 0,
+    },
+    logoText: {
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontWeight: 700,
+      fontSize: 17,
+      color: C.white,
+      letterSpacing: 1,
+      lineHeight: 1.1,
+    },
+    logoSub: {
+      fontSize: 9,
+      color: T.muted,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      marginTop: 1,
+    },
+    divider: {
+      width: 1, height: 36,
+      background: `rgba(0,160,255,0.3)`,
+      margin: "0 10px",
+    },
+    headerLabel: {
+      fontSize: 11,
+      color: T.muted,
+      letterSpacing: 2,
+      textTransform: "uppercase",
+    },
+    badge: {
+      marginLeft: "auto",
+      fontSize: 10,
+      background: `rgba(0,160,255,0.15)`,
+      border: `1px solid rgba(0,160,255,0.4)`,
+      borderRadius: 12,
+      padding: "4px 12px",
+      color: C.secondary,
+      letterSpacing: 1,
+      fontWeight: 600,
+      textTransform: "uppercase",
+    },
+    main: {
+      padding: "52px 32px 72px",
+      maxWidth: 840,
+      margin: "0 auto",
+    },
+    eyebrow: {
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontSize: 10,
+      fontWeight: 600,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: C.secondary,
+      marginBottom: 12,
+    },
+    h1: {
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontSize: "clamp(26px, 4vw, 42px)",
+      fontWeight: 800,
+      color: C.white,
+      margin: "0 0 10px",
+      lineHeight: 1.15,
+      letterSpacing: -0.5,
+    },
+    h1Accent: {
+      color: C.secondary,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: T.muted,
+      margin: "0 0 32px",
+      lineHeight: 1.6,
+    },
+    inputWrap: {
+      position: "relative",
+      marginBottom: 16,
+    },
+    input: {
+      width: "100%",
+      padding: "18px 68px 18px 22px",
+      fontSize: 16,
+      borderRadius: 10,
+      background: "rgba(0,0,0,0.3)",
+      border: `1.5px solid rgba(0,160,255,0.3)`,
+      color: T.text,
+      outline: "none",
+      fontFamily: "'Open Sans', sans-serif",
+      transition: "border-color 0.2s, box-shadow 0.2s",
+    },
+    searchBtn: (disabled) => ({
+      position: "absolute",
+      right: 10,
+      top: "50%",
+      transform: "translateY(-50%)",
+      background: disabled
+        ? "rgba(0,120,180,0.4)"
+        : `linear-gradient(135deg, ${C.secondary} 0%, ${C.secondaryDark} 100%)`,
+      border: "none",
+      borderRadius: 8,
+      padding: "10px 14px",
+      cursor: disabled ? "default" : "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "opacity 0.2s",
+    }),
+    chipWrap: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 8,
+    },
+    chip: {
+      background: "rgba(0,0,0,0.25)",
+      border: `1px solid rgba(255,255,255,0.1)`,
+      borderRadius: 20,
+      padding: "6px 14px",
+      fontSize: 12,
+      color: T.muted,
+      cursor: "pointer",
+      fontFamily: "'Open Sans', sans-serif",
+      transition: "all 0.15s",
+    },
+    loadingWrap: {
+      marginTop: 48,
+      textAlign: "center",
+    },
+    loadingText: {
+      fontSize: 12,
+      color: T.muted,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      marginBottom: 14,
+    },
+    dotsWrap: {
+      display: "flex",
+      gap: 6,
+      justifyContent: "center",
+    },
+    errorBox: {
+      marginTop: 24,
+      padding: "16px 20px",
+      background: "rgba(220,38,38,0.1)",
+      border: "1px solid rgba(220,38,38,0.3)",
+      borderRadius: 8,
+      color: "#fca5a5",
+      fontSize: 13,
+      lineHeight: 1.5,
+    },
+    resultsWrap: {
+      marginTop: 36,
+      animation: "fadeIn 0.3s ease",
+    },
+    metaBar: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+      paddingBottom: 12,
+      borderBottom: `1px solid rgba(255,255,255,0.08)`,
+    },
+    metaText: { fontSize: 13, color: T.muted },
+    metaQuery: { fontSize: 13, color: C.secondary, fontWeight: 700 },
+    clearBtn: {
+      fontSize: 12,
+      color: T.muted,
+      background: "none",
+      border: `1px solid rgba(255,255,255,0.15)`,
+      borderRadius: 6,
+      padding: "4px 10px",
+      cursor: "pointer",
+      fontFamily: "'Open Sans', sans-serif",
+      transition: "all 0.15s",
+    },
+    reasoningBox: {
+      marginBottom: 20,
+      padding: "14px 18px",
+      background: "rgba(0,160,255,0.07)",
+      border: `1px solid rgba(0,160,255,0.25)`,
+      borderRadius: 10,
+      display: "flex",
+      gap: 12,
+    },
+    reasoningIcon: {
+      fontSize: 18,
+      color: C.secondary,
+      marginTop: 1,
+      flexShrink: 0,
+    },
+    reasoningLabel: {
+      fontSize: 10,
+      color: C.secondary,
+      letterSpacing: 2,
+      textTransform: "uppercase",
+      marginBottom: 5,
+      fontWeight: 700,
+    },
+    reasoningText: {
+      fontSize: 13,
+      color: T.subtext,
+      lineHeight: 1.6,
+    },
+    sectionLabel: {
+      fontSize: 10,
+      color: T.muted,
+      letterSpacing: 2,
+      textTransform: "uppercase",
+      marginBottom: 10,
+      fontWeight: 600,
+    },
+    externalCard: {
+      padding: "14px 18px",
+      background: "rgba(0,0,0,0.25)",
+      border: `1px solid rgba(255,255,255,0.12)`,
+      borderRadius: 8,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      transition: "all 0.15s",
+      marginBottom: 8,
+    },
+    externalTitle: {
+      fontWeight: 700,
+      color: T.text,
+      fontSize: 14,
+    },
+    externalDesc: {
+      fontSize: 12,
+      color: T.muted,
+      marginTop: 2,
+    },
+    externalUrl: {
+      fontSize: 11,
+      color: C.secondary,
+    },
+    noResults: {
+      padding: "40px 0",
+      textAlign: "center",
+      color: T.muted,
+      fontSize: 15,
+    },
+    cardList: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+    },
+    card: {
+      background: "rgba(0,0,0,0.2)",
+      border: `1px solid rgba(255,255,255,0.08)`,
+      borderRadius: 10,
+      padding: "18px 20px",
+      display: "flex",
+      gap: 16,
+      transition: "all 0.18s",
+      cursor: "pointer",
+    },
+    cardNum: {
+      fontSize: 12,
+      color: `rgba(0,160,255,0.4)`,
+      fontWeight: 800,
+      minWidth: 22,
+      paddingTop: 2,
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+    },
+    cardTitle: {
+      fontWeight: 700,
+      fontSize: 15,
+      color: T.text,
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+    },
+    cardExcerpt: {
+      fontSize: 13,
+      color: T.subtext,
+      lineHeight: 1.6,
+      marginTop: 5,
+      marginBottom: 8,
+    },
+    gapBox: {
+      marginTop: 20,
+      padding: "14px 18px",
+      background: "rgba(98,19,96,0.2)",
+      border: `1px solid rgba(98,19,96,0.4)`,
+      borderRadius: 8,
+    },
+    gapLabel: {
+      fontSize: 10,
+      color: "#D8A8D8",
+      letterSpacing: 2,
+      textTransform: "uppercase",
+      marginBottom: 4,
+      fontWeight: 700,
+    },
+    gapText: {
+      fontSize: 13,
+      color: T.subtext,
+      lineHeight: 1.5,
+    },
+    suggestWrap: {
+      marginTop: 16,
+      display: "flex",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: 4,
+    },
+    suggestLabel: {
+      fontSize: 12,
+      color: T.muted,
+    },
+    suggestBtn: {
+      background: "none",
+      border: "none",
+      color: C.secondary,
+      fontSize: 13,
+      cursor: "pointer",
+      textDecoration: "underline",
+      fontFamily: "'Open Sans', sans-serif",
+      padding: "2px 4px",
+    },
+  };
 
   return (
-    <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", background: `linear-gradient(160deg, ${COLORS.navyDark} 0%, ${COLORS.navy} 50%, #0d1929 100%)`, minHeight: "100vh", color: COLORS.text }}>
+    <div style={s.wrap}>
 
       {/* ── Header ── */}
-      <header style={{ background: "rgba(255,255,255,0.04)", borderBottom: `1px solid rgba(201,168,76,0.25)`, padding: "14px 32px", display: "flex", alignItems: "center", gap: 12 }}>
+      <header style={s.header}>
+        <div className="header-accent" />
+        <div style={s.logoMark}>C</div>
         <div>
-          <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: COLORS.gold, letterSpacing: 1 }}>CADI</div>
-          <div style={{ fontSize: 10, color: COLORS.muted, letterSpacing: 2, textTransform: "uppercase", marginTop: -2 }}>Centre for Academic &amp; Digital Innovation</div>
+          <div style={s.logoText}>CADI</div>
+          <div style={s.logoSub}>Centre for Academic &amp; Digital Innovation</div>
         </div>
-        <div style={{ width: 1, height: 36, background: "rgba(201,168,76,0.3)", margin: "0 12px" }} />
-        <span style={{ fontSize: 13, color: COLORS.muted, letterSpacing: 1.5, textTransform: "uppercase" }}>Agentic Search</span>
-        <div style={{ marginLeft: "auto", fontSize: 11, background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 12, padding: "3px 12px", color: COLORS.gold, letterSpacing: 1 }}>
-          Powered by Claude
-        </div>
+        <div style={s.divider} />
+        <span style={s.headerLabel}>Agentic Search</span>
+        <div style={s.badge}>Powered by Claude</div>
       </header>
 
       {/* ── Main ── */}
-      <main style={{ padding: "48px 32px 64px", maxWidth: 820, margin: "0 auto" }}>
+      <main style={s.main}>
 
         {/* Hero */}
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(28px,4vw,44px)", fontWeight: 400, color: COLORS.text, margin: "0 0 8px", lineHeight: 1.2 }}>
-          Find what you<br /><em style={{ color: COLORS.gold }}>need to know</em>
+        <p style={s.eyebrow}>University of Portsmouth</p>
+        <h1 style={s.h1}>
+          Find what you<br />
+          <span style={s.h1Accent}>need to know</span>
         </h1>
-        <p style={{ fontSize: 15, color: COLORS.muted, margin: "0 0 28px" }}>
+        <p style={s.subtitle}>
           AI-powered search across CADI resources, CPD, events and tools
           {!GITHUB_RAW_INDEX_URL.includes("YOUR-ORG") && !indexing && (
-            <span style={{ marginLeft: 8, fontSize: 12, color: "#4ade80" }}>
+            <span style={{ marginLeft: 10, fontSize: 11, color: "#4ade80", fontWeight: 600 }}>
               ● Live index ({pageIndex.length} pages)
             </span>
           )}
           {GITHUB_RAW_INDEX_URL.includes("YOUR-ORG") && (
-            <span style={{ marginLeft: 8, fontSize: 12, color: COLORS.gold }}>
+            <span style={{ marginLeft: 10, fontSize: 11, color: C.secondary, fontWeight: 600 }}>
               ● Demo index
             </span>
           )}
         </p>
 
         {/* Search input */}
-        <div style={{ position: "relative", marginBottom: 16 }}>
+        <div style={s.inputWrap}>
           <input
             ref={inputRef}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Try: fellowship, CPD timetable, peer observation…"
-            style={{ width: "100%", padding: "18px 64px 18px 22px", fontSize: 17, borderRadius: 14, background: "rgba(255,255,255,0.07)", border: `1.5px solid rgba(201,168,76,0.3)`, color: COLORS.text, outline: "none", transition: "border-color 0.2s" }}
-            onFocus={e => e.target.style.borderColor = COLORS.gold}
-            onBlur={e => e.target.style.borderColor = "rgba(201,168,76,0.3)"}
+            style={s.input}
+            onFocus={e => {
+              e.target.style.borderColor = C.secondary;
+              e.target.style.boxShadow = `0 0 0 3px rgba(0,160,255,0.15)`;
+            }}
+            onBlur={e => {
+              e.target.style.borderColor = "rgba(0,160,255,0.3)";
+              e.target.style.boxShadow = "none";
+            }}
           />
           <button
             onClick={() => runSearch(query)}
             disabled={loading || indexing}
-            style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: (loading || indexing) ? "rgba(201,168,76,0.4)" : COLORS.gold, border: "none", borderRadius: 10, padding: "10px 14px", cursor: (loading || indexing) ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={s.searchBtn(loading || indexing)}
+            onMouseEnter={e => { if (!loading && !indexing) e.currentTarget.style.opacity = "0.85"; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
           >
             {loading ? (
-              <span style={{ display: "inline-block", width: 18, height: 18, border: `2px solid ${COLORS.navy}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+              <span style={{ display: "inline-block", width: 18, height: 18, border: `2.5px solid ${C.white}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
             ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={COLORS.navy} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.white} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
             )}
@@ -319,24 +715,32 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
 
         {/* Example prompts */}
         {!results && !loading && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          <div style={s.chipWrap}>
             {EXAMPLE_PROMPTS.map(q => (
               <button key={q} onClick={() => { setQuery(q); runSearch(q); }}
-                style={{ background: "rgba(255,255,255,0.05)", border: `1px solid rgba(255,255,255,0.12)`, borderRadius: 20, padding: "6px 14px", fontSize: 13, color: COLORS.muted, cursor: "pointer", transition: "all 0.15s" }}
-                onMouseEnter={e => { e.target.style.background = "rgba(201,168,76,0.15)"; e.target.style.borderColor = "rgba(201,168,76,0.4)"; e.target.style.color = COLORS.gold; }}
-                onMouseLeave={e => { e.target.style.background = "rgba(255,255,255,0.05)"; e.target.style.borderColor = "rgba(255,255,255,0.12)"; e.target.style.color = COLORS.muted; }}
+                style={s.chip}
+                onMouseEnter={e => {
+                  e.target.style.background = `rgba(0,160,255,0.12)`;
+                  e.target.style.borderColor = `rgba(0,160,255,0.4)`;
+                  e.target.style.color = C.secondary;
+                }}
+                onMouseLeave={e => {
+                  e.target.style.background = "rgba(0,0,0,0.25)";
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.color = T.muted;
+                }}
               >{q}</button>
             ))}
           </div>
         )}
 
-        {/* Loading dots */}
+        {/* Loading */}
         {loading && (
-          <div style={{ marginTop: 40, textAlign: "center" }}>
-            <div style={{ fontSize: 13, color: COLORS.muted, letterSpacing: 1, marginBottom: 12 }}>Searching across {pageIndex.length} pages…</div>
-            <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+          <div style={s.loadingWrap}>
+            <div style={s.loadingText}>Searching {pageIndex.length} pages…</div>
+            <div style={s.dotsWrap}>
               {[0,1,2].map(i => (
-                <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.gold, animation: `bounce 1s ease-in-out ${i*0.15}s infinite` }} />
+                <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: C.secondary, animation: `bounce 1s ease-in-out ${i*0.15}s infinite` }} />
               ))}
             </div>
           </div>
@@ -344,51 +748,57 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
 
         {/* Error */}
         {error && !loading && (
-          <div style={{ marginTop: 24, padding: "16px 20px", background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.3)", borderRadius: 10, color: "#fca5a5", fontSize: 14 }}>
+          <div style={s.errorBox}>
             ⚠ {error}
           </div>
         )}
 
         {/* Results */}
         {results && !loading && (
-          <div style={{ marginTop: 32, animation: "fadeIn 0.3s ease" }}>
+          <div style={s.resultsWrap}>
 
             {/* Meta bar */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={s.metaBar}>
               <div>
-                <span style={{ fontSize: 13, color: COLORS.muted }}>Results for </span>
-                <span style={{ fontSize: 13, color: COLORS.gold, fontWeight: 600 }}>"{submitted}"</span>
-                <span style={{ fontSize: 13, color: COLORS.muted }}> — {results.results.length} match{results.results.length !== 1 ? "es" : ""}</span>
+                <span style={s.metaText}>Results for </span>
+                <span style={s.metaQuery}>"{submitted}"</span>
+                <span style={s.metaText}> — {results.results.length} match{results.results.length !== 1 ? "es" : ""}</span>
               </div>
-              <button onClick={handleClear} style={{ fontSize: 12, color: COLORS.muted, background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Clear</button>
+              <button
+                onClick={handleClear}
+                style={s.clearBtn}
+                onMouseEnter={e => { e.target.style.borderColor = "rgba(255,255,255,0.3)"; e.target.style.color = C.white; }}
+                onMouseLeave={e => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; e.target.style.color = T.muted; }}
+              >Clear</button>
             </div>
 
             {/* AI reasoning */}
             {results.reasoning && (
-              <div style={{ marginBottom: 20, padding: "12px 16px", background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: 10, display: "flex", gap: 10 }}>
-                <span style={{ fontSize: 16, color: COLORS.gold }}>✦</span>
+              <div style={s.reasoningBox}>
+                <span style={s.reasoningIcon}>✦</span>
                 <div>
-                  <div style={{ fontSize: 11, color: COLORS.gold, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>AI Interpretation</div>
-                  <div style={{ fontSize: 13, color: "#c4cedc", lineHeight: 1.5 }}>{results.reasoning}</div>
+                  <div style={s.reasoningLabel}>AI Interpretation</div>
+                  <div style={s.reasoningText}>{results.reasoning}</div>
                 </div>
               </div>
             )}
 
             {/* External links */}
             {results.externalMatches?.length > 0 && (
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: COLORS.muted, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>Direct Link</div>
+              <div style={{ marginBottom: 20 }}>
+                <div style={s.sectionLabel}>Direct Link</div>
                 {results.externalMatches.map(el => (
                   <a key={el.url} href={el.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "block" }}>
-                    <div style={{ padding: "14px 18px", background: COLORS.card, border: `1px solid rgba(255,255,255,0.15)`, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = COLORS.gold}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"}
+                    <div
+                      style={s.externalCard}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(0,160,255,0.4)`; e.currentTarget.style.background = "rgba(0,160,255,0.07)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.background = "rgba(0,0,0,0.25)"; }}
                     >
                       <div>
-                        <div style={{ fontWeight: 600, color: COLORS.text, fontSize: 15 }}>↗ {el.name}</div>
-                        <div style={{ fontSize: 13, color: COLORS.muted, marginTop: 2 }}>{el.description}</div>
+                        <div style={s.externalTitle}>↗ {el.name}</div>
+                        <div style={s.externalDesc}>{el.description}</div>
                       </div>
-                      <div style={{ fontSize: 12, color: COLORS.muted }}>{el.url.replace("https://","")}</div>
+                      <div style={s.externalUrl}>{el.url.replace("https://","")}</div>
                     </div>
                   </a>
                 ))}
@@ -397,40 +807,69 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
 
             {/* No results */}
             {results.results.length === 0 && (
-              <div style={{ padding: 32, textAlign: "center", color: COLORS.muted, fontSize: 15 }}>
-                No strong matches found for this query.
-              </div>
+              <div style={s.noResults}>No strong matches found for this query.</div>
             )}
 
             {/* Result cards */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={s.cardList}>
               {results.results.map((r, idx) => {
                 const tc = TYPE_CONFIG[r.type] || TYPE_CONFIG.page;
                 const score = r.relevance_score;
-                const scoreColor = score >= 80 ? "#4ade80" : score >= 60 ? "#60a5fa" : COLORS.muted;
+                const scoreColor = score >= 80 ? "#4ade80" : score >= 60 ? C.secondary : T.muted;
                 return (
                   <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-                    <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: "18px 20px", display: "flex", gap: 16, transition: "all 0.18s" }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"; e.currentTarget.style.background = COLORS.cardHover; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = COLORS.border; e.currentTarget.style.background = COLORS.card; }}
+                    <div
+                      style={s.card}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = `rgba(0,160,255,0.35)`;
+                        e.currentTarget.style.background = "rgba(0,160,255,0.05)";
+                        e.currentTarget.style.transform = "translateY(-1px)";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                        e.currentTarget.style.background = "rgba(0,0,0,0.2)";
+                        e.currentTarget.style.transform = "none";
+                      }}
                     >
-                      <div style={{ fontSize: 13, color: "#4a6080", fontWeight: 700, minWidth: 20, paddingTop: 2 }}>{idx + 1}</div>
+                      <div style={s.cardNum}>{String(idx+1).padStart(2,"0")}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
-                          <span style={{ fontWeight: 600, fontSize: 16, color: COLORS.text }}>{r.title}</span>
-                          <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 10, background: tc.bg, color: tc.text, fontWeight: 600 }}>{tc.label}</span>
-                          {r.date && <span style={{ fontSize: 11, color: COLORS.muted }}>{new Date(r.date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</span>}
+                        {/* Title row */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                          <span style={s.cardTitle}>{r.title}</span>
+                          <span style={{
+                            fontSize: 10, padding: "2px 9px", borderRadius: 10,
+                            background: tc.bg, border: `1px solid ${tc.border}`,
+                            color: tc.text, fontWeight: 700, letterSpacing: 0.5,
+                            textTransform: "uppercase",
+                          }}>{tc.label}</span>
+                          {r.date && (
+                            <span style={{ fontSize: 11, color: T.muted }}>
+                              {new Date(r.date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+                            </span>
+                          )}
                         </div>
-                        <div style={{ fontSize: 14, color: COLORS.subtext, lineHeight: 1.5, marginBottom: 8 }}>{r.excerpt}</div>
+
+                        {/* Excerpt */}
+                        <div style={s.cardExcerpt}>{r.excerpt}</div>
+
+                        {/* Footer row */}
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
                             {(r.tags || []).slice(0, 4).map(t => (
-                              <span key={t} style={{ fontSize: 11, padding: "2px 8px", borderRadius: 8, background: "rgba(255,255,255,0.06)", color: "#7a90a8" }}>{t}</span>
+                              <span key={t} style={{
+                                fontSize: 10, padding: "2px 8px", borderRadius: 6,
+                                background: "rgba(255,255,255,0.05)",
+                                border: "1px solid rgba(255,255,255,0.08)",
+                                color: T.muted,
+                              }}>{t}</span>
                             ))}
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ fontSize: 11, color: COLORS.muted, fontStyle: "italic" }}>{r.relevance_reason}</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: scoreColor }}>{score}%</span>
+                            <span style={{ fontSize: 11, color: T.muted, fontStyle: "italic" }}>{r.relevance_reason}</span>
+                            <span style={{
+                              fontSize: 12, fontWeight: 800, color: scoreColor,
+                              fontFamily: "'Encode Sans Expanded', sans-serif",
+                            }}>{score}%</span>
                           </div>
                         </div>
                       </div>
@@ -442,21 +881,20 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
 
             {/* Content gap */}
             {results.content_gap && (
-              <div style={{ marginTop: 20, padding: "14px 18px", background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 10 }}>
-                <div style={{ fontSize: 11, color: "#a855f7", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Content Gap Detected</div>
-                <div style={{ fontSize: 13, color: "#c4cedc" }}>{results.content_gap}</div>
+              <div style={s.gapBox}>
+                <div style={s.gapLabel}>Content Gap Detected</div>
+                <div style={s.gapText}>{results.content_gap}</div>
               </div>
             )}
 
             {/* Suggestions */}
             {results.suggestions?.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <span style={{ fontSize: 12, color: COLORS.muted }}>Try also: </span>
-                {results.suggestions.map(s => (
-                  <button key={s} onClick={() => { setQuery(s); runSearch(s); }}
-                    style={{ background: "none", border: "none", color: COLORS.gold, fontSize: 13, cursor: "pointer", textDecoration: "underline", marginRight: 8 }}>
-                    {s}
-                  </button>
+              <div style={s.suggestWrap}>
+                <span style={s.suggestLabel}>Try also: </span>
+                {results.suggestions.map(sg => (
+                  <button key={sg} onClick={() => { setQuery(sg); runSearch(sg); }}
+                    style={s.suggestBtn}
+                  >{sg}</button>
                 ))}
               </div>
             )}
