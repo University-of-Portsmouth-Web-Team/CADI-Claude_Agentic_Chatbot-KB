@@ -1,779 +1,687 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CADI – Centre for Academic Development &amp; Innovation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CADI Assist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@300;400;500;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --primary-dark:     #3C023C;
-  --primary:          #621360;
-  --secondary-dark:   #0078B4;
-  --secondary:        #00A0FF;
-  --secondary-darker: #004F76;
-  --black:            #000000;
-  --dark-grey:        #505457;
-  --mid-grey:         #ABAAAA;
-  --light-grey:       #D1D1D1;
-  --lighter-grey:     #F7F7F7;
-  --off-white:        #FAFAFA;
-  --white:            #FFFFFF;
-  --font-display:     'Source Serif 4', Georgia, serif;
-  --font-body:        'Source Sans 3', Arial, sans-serif;
-  --focus-ring:       0 0 0 3px #00A0FF;
-}
+    :root {
+      --primary-dark:   #3C023C;
+      --primary:        #621360;
+      --secondary-dark: #0078B4;
+      --secondary:      #00A0FF;
+      --black:          #000000;
+      --dark-grey:      #505457;
+      --mid-grey:       #ABAAAA;
+      --light-grey:     #D1D1D1;
+      --lighter-grey:   #F7F7F7;
+      --off-white:      #FAFAFA;
+      --white:          #FFFFFF;
+    }
 
-.skip-link {
-  position: absolute; top: -100px; left: 0;
-  background: var(--primary); color: var(--white);
-  padding: 10px 18px; font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
-  z-index: 10000; text-decoration: none; border: 2px solid var(--white);
-}
-.skip-link:focus { top: 0; }
+    html, body, #root { height: 100%; }
 
-.sr-only {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-}
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: var(--primary-dark);
+    }
 
-body {
-  font-family: var(--font-body);
-  background: var(--white);
-  color: var(--black);
-  min-height: 100vh;
-  line-height: 1.6;
-  font-size: 16px;
-}
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); opacity: 0.45; }
+      50%       { transform: translateY(-5px); opacity: 1; }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
 
-/* NAV */
-nav {
-  background: var(--white);
-  border-bottom: 2px solid var(--primary);
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 60px;
-  position: sticky; top: 0; z-index: 200;
-}
-.nav-brand {
-  display: flex; align-items: center; gap: 12px;
-  text-decoration: none; color: inherit;
-}
-.nav-logo {
-  background: var(--primary);
-  padding: 5px 10px;
-  display: flex; align-items: center; justify-content: center;
-}
-.nav-logo-text {
-  font-family: var(--font-display);
-  font-size: 1rem; font-weight: 600;
-  color: var(--white); letter-spacing: 0.1em;
-}
-.nav-brand-label {
-  font-size: 0.85rem; font-weight: 400;
-  color: var(--dark-grey); letter-spacing: 0.01em;
-}
-.nav-links { display: flex; gap: 0; }
-.nav-links a {
-  font-size: 0.875rem; font-weight: 600;
-  color: var(--dark-grey); text-decoration: none;
-  padding: 0 14px; height: 60px;
-  display: flex; align-items: center;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
-  transition: color 0.15s, border-color 0.15s;
-}
-.nav-links a:hover { color: var(--primary); border-bottom-color: var(--primary); }
-.nav-links a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .header-accent {
+      position: absolute;
+      top: 0; right: 0;
+      width: 220px; height: 100%;
+      background: linear-gradient(135deg, transparent 40%, rgba(0,160,255,0.08) 40%);
+      pointer-events: none;
+    }
 
-/* HERO */
-.hero {
-  max-width: 1100px; margin: 0 auto;
-  padding: 4rem 2rem 3rem;
-  display: grid; grid-template-columns: 1.1fr 0.9fr;
-  gap: 4rem; align-items: center;
-}
-.hero-eyebrow {
-  font-size: 0.72rem; font-weight: 600;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--secondary-dark); margin-bottom: 0.75rem;
-  display: flex; align-items: center; gap: 8px;
-}
-.hero-eyebrow::before {
-  content: ''; display: inline-block;
-  width: 24px; height: 2px; background: var(--secondary-dark);
-}
-.hero-title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
-  font-weight: 300; line-height: 1.15;
-  color: var(--primary-dark); margin-bottom: 1.25rem;
-}
-.hero-title strong { font-weight: 600; display: block; }
-.hero-body {
-  font-size: 1rem; color: var(--dark-grey);
-  max-width: 480px; margin-bottom: 2rem;
-  line-height: 1.7; font-weight: 300;
-}
-.hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
-.chip {
-  font-size: 0.8rem; font-weight: 600;
-  padding: 6px 14px;
-  border: 1.5px solid var(--secondary-dark);
-  background: var(--white); color: var(--secondary-dark);
-  cursor: pointer; font-family: var(--font-body);
-  transition: background 0.15s, color 0.15s;
-}
-.chip:hover, .chip:focus-visible { background: var(--secondary-dark); color: var(--white); outline: none; }
-.chip:focus-visible { box-shadow: var(--focus-ring); }
-
-.btn-primary {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: var(--secondary-dark); color: var(--white);
-  font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
-  padding: 12px 24px;
-  border: 2px solid var(--secondary-dark);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  letter-spacing: 0.01em; text-decoration: none;
-}
-.btn-primary:hover { background: var(--secondary-darker); border-color: var(--secondary-darker); }
-.btn-primary:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.btn-primary svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
-
-/* STATS */
-.stats-panel {
-  background: var(--lighter-grey);
-  border: 1px solid var(--light-grey);
-  padding: 1.5rem;
-}
-.stats-panel-title {
-  font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--dark-grey); margin-bottom: 1rem;
-  padding-bottom: 0.75rem; border-bottom: 1px solid var(--light-grey);
-}
-.stat-row {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  padding: 9px 0; border-bottom: 1px solid var(--light-grey); gap: 1rem;
-}
-.stat-row:last-child { border-bottom: none; }
-.stat-label { font-size: 0.85rem; color: var(--dark-grey); font-weight: 400; }
-.stat-value {
-  font-size: 0.78rem; font-weight: 600;
-  padding: 2px 10px;
-  background: var(--white); color: var(--secondary-dark);
-  border: 1px solid var(--secondary-dark);
-  white-space: nowrap;
-}
-
-/* CARDS SECTION */
-.section {
-  background: var(--off-white);
-  border-top: 1px solid var(--light-grey);
-  border-bottom: 1px solid var(--light-grey);
-  padding: 3rem 2rem;
-}
-.section-inner { max-width: 1100px; margin: 0 auto; }
-.section-title {
-  font-family: var(--font-display);
-  font-size: 1.6rem; font-weight: 300;
-  color: var(--primary-dark); margin-bottom: 0.4rem;
-}
-.section-subtitle {
-  font-size: 0.9rem; color: var(--dark-grey); margin-bottom: 2rem;
-}
-.cards-grid {
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 1px; background: var(--light-grey);
-  border: 1px solid var(--light-grey);
-}
-.card {
-  background: var(--white); padding: 1.5rem;
-  transition: background 0.15s;
-}
-.card:hover { background: var(--lighter-grey); }
-.card-accent { width: 32px; height: 3px; background: var(--primary); margin-bottom: 1rem; }
-.card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; color: var(--black); }
-.card-body { font-size: 0.85rem; color: var(--dark-grey); line-height: 1.6; font-weight: 300; }
-.card-link {
-  display: inline-block; margin-top: 0.75rem;
-  font-size: 0.8rem; font-weight: 600;
-  color: var(--secondary-dark); text-decoration: none;
-}
-.card-link:hover { text-decoration: underline; }
-.card-link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-
-/* ════════════════════════════
-   CHAT WIDGET
-════════════════════════════ */
-
-#chat-bubble {
-  position: fixed; bottom: 24px; right: 24px;
-  width: 54px; height: 54px;
-  background: var(--primary); border: none;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 9998;
-  transition: background 0.15s;
-  box-shadow: 0 4px 18px rgba(60,2,60,0.28);
-}
-#chat-bubble:hover { background: var(--primary-dark); }
-#chat-bubble:focus-visible { outline: none; box-shadow: var(--focus-ring), 0 4px 18px rgba(60,2,60,0.28); }
-#chat-bubble svg { width: 23px; height: 23px; fill: var(--white); }
-#bubble-close { display: none; }
-#chat-bubble.open #bubble-open { display: none; }
-#chat-bubble.open #bubble-close { display: block; }
-
-.chat-badge {
-  position: absolute; top: -5px; right: -5px;
-  background: var(--secondary-dark); color: var(--white);
-  font-family: var(--font-body); font-size: 11px; font-weight: 700;
-  width: 20px; height: 20px;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid var(--white);
-}
-
-#chat-panel {
-  position: fixed; bottom: 86px; right: 24px;
-  width: 400px; height: 580px;
-  background: var(--white);
-  border: 1px solid var(--light-grey);
-  border-top: 3px solid var(--primary);
-  display: flex; flex-direction: column;
-  z-index: 9997;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.13);
-  transform: translateY(14px); opacity: 0; pointer-events: none;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-#chat-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
-
-.chat-header {
-  background: var(--primary);
-  padding: 12px 16px;
-  display: flex; align-items: center; gap: 12px;
-  flex-shrink: 0;
-}
-.chat-header-logo {
-  width: 34px; height: 34px;
-  background: rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.chat-header-logo svg { width: 17px; height: 17px; fill: var(--white); }
-.chat-header-info { flex: 1; min-width: 0; }
-.chat-header-name {
-  font-size: 0.9rem; font-weight: 600;
-  color: var(--white); line-height: 1.1;
-}
-.chat-header-status {
-  font-size: 0.72rem; color: rgba(255,255,255,0.8);
-  margin-top: 2px; display: flex; align-items: center; gap: 5px;
-}
-.status-dot {
-  width: 6px; height: 6px; background: #7FFFD4; flex-shrink: 0;
-  animation: blink 2.5s ease-in-out infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.45} }
-
-.chat-header-clear {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.4);
-  color: var(--white);
-  font-family: var(--font-body);
-  font-size: 0.7rem; font-weight: 600;
-  padding: 5px 10px; cursor: pointer;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  transition: background 0.15s;
-}
-.chat-header-clear:hover { background: rgba(255,255,255,0.15); }
-.chat-header-clear:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--white); }
-
-#chat-messages {
-  flex: 1; overflow-y: auto;
-  padding: 1.25rem;
-  display: flex; flex-direction: column; gap: 12px;
-  scroll-behavior: smooth;
-  background: var(--white);
-}
-#chat-messages::-webkit-scrollbar { width: 4px; }
-#chat-messages::-webkit-scrollbar-thumb { background: var(--light-grey); }
-
-.welcome-intro {
-  background: var(--lighter-grey);
-  border-left: 3px solid var(--primary);
-  padding: 12px 14px;
-  font-size: 0.875rem; color: var(--dark-grey);
-  line-height: 1.6; font-weight: 300;
-}
-.welcome-intro strong { color: var(--black); font-weight: 600; }
-
-.suggestion-label {
-  font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--mid-grey);
-  margin-top: 14px; margin-bottom: 6px;
-}
-.suggestions { display: flex; flex-wrap: wrap; gap: 6px; }
-.suggestion-chip {
-  font-size: 0.78rem; font-weight: 600;
-  padding: 5px 12px;
-  border: 1.5px solid var(--secondary-dark);
-  background: var(--white); color: var(--secondary-dark);
-  cursor: pointer; font-family: var(--font-body);
-  transition: background 0.15s, color 0.15s; text-align: left;
-}
-.suggestion-chip:hover { background: var(--secondary-dark); color: var(--white); }
-.suggestion-chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-
-.msg { display: flex; gap: 8px; align-items: flex-start; }
-.msg.user { flex-direction: row-reverse; }
-
-.msg-avatar {
-  width: 26px; height: 26px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; font-family: var(--font-body);
-}
-.bot-avatar { background: var(--primary); }
-.bot-avatar svg { width: 13px; height: 13px; fill: var(--white); }
-.user-avatar {
-  background: var(--lighter-grey); color: var(--dark-grey);
-  border: 1px solid var(--light-grey); font-size: 10px;
-}
-
-.msg-bubble {
-  padding: 10px 13px;
-  font-size: 0.875rem; line-height: 1.6;
-  max-width: calc(100% - 44px);
-  word-break: break-word; font-weight: 300;
-}
-.bot .msg-bubble {
-  background: var(--lighter-grey); color: var(--black);
-  border-top: 2px solid var(--light-grey);
-}
-.user .msg-bubble {
-  background: var(--secondary-dark); color: var(--white); font-weight: 400;
-}
-
-.agent-steps-wrap {
-  padding: 10px 13px;
-  background: var(--lighter-grey);
-  border-top: 2px solid var(--light-grey);
-  max-width: calc(100% - 44px);
-}
-.agent-step {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.74rem; color: var(--dark-grey);
-  padding: 4px 0; opacity: 0;
-  animation: step-in 0.25s ease forwards;
-}
-@keyframes step-in { to { opacity: 1; } }
-
-.step-spinner {
-  width: 10px; height: 10px;
-  border: 1.5px solid var(--secondary-dark);
-  border-top-color: transparent;
-  animation: spin 0.7s linear infinite; flex-shrink: 0;
-}
-.step-done {
-  width: 10px; height: 10px;
-  background: var(--secondary-dark);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.step-done svg { width: 7px; height: 7px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.sources-row {
-  display: flex; flex-wrap: wrap; gap: 5px;
-  margin-top: 10px; padding-top: 8px;
-  border-top: 1px solid var(--light-grey);
-}
-.source-chip {
-  font-size: 0.7rem; font-weight: 600;
-  padding: 2px 8px;
-  color: var(--secondary-dark);
-  border: 1px solid var(--secondary-dark);
-  background: var(--white);
-}
-
-.chat-input-area {
-  border-top: 1px solid var(--light-grey);
-  padding: 10px 12px;
-  display: flex; gap: 8px; align-items: flex-end;
-  background: var(--white); flex-shrink: 0;
-}
-#chat-input {
-  flex: 1;
-  border: 1px solid var(--light-grey);
-  padding: 9px 12px;
-  font-family: var(--font-body); font-size: 0.875rem;
-  color: var(--black); resize: none;
-  min-height: 40px; max-height: 96px;
-  line-height: 1.5; outline: none;
-  background: var(--off-white); font-weight: 300;
-  transition: border-color 0.15s, background 0.15s;
-}
-#chat-input:focus {
-  border-color: var(--secondary-dark);
-  background: var(--white);
-  box-shadow: var(--focus-ring);
-}
-#chat-input::placeholder { color: var(--mid-grey); }
-
-#send-btn {
-  width: 40px; height: 40px;
-  border: none; background: var(--secondary-dark);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0;
-  transition: background 0.15s;
-}
-#send-btn:hover { background: var(--secondary-darker); }
-#send-btn:disabled { background: var(--light-grey); cursor: not-allowed; }
-#send-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-#send-btn svg { width: 17px; height: 17px; fill: var(--white); }
-
-.chat-footer {
-  padding: 6px 12px; text-align: center;
-  font-size: 0.67rem; font-weight: 400;
-  color: var(--mid-grey);
-  background: var(--lighter-grey);
-  border-top: 1px solid var(--light-grey);
-  letter-spacing: 0.04em; flex-shrink: 0;
-}
-
-@media (max-width: 800px) {
-  .hero { grid-template-columns: 1fr; }
-  .hero-visual { display: none; }
-  .cards-grid { grid-template-columns: 1fr; }
-  .nav-links { display: none; }
-  #chat-panel { width: calc(100vw - 32px); right: 16px; bottom: 84px; height: 70vh; }
-}
-</style>
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+  </style>
 </head>
 <body>
+<div id="root"></div>
 
-<a href="#main-content" class="skip-link">Skip to main content</a>
+<script type="text/babel">
+// ============================================================================
+// CONFIGURATION — same values as the search page
+// ============================================================================
+const PROXY_URL = "https://cadi-search-proxy.kristian-band.workers.dev";
 
-<nav aria-label="Main navigation">
-  <a class="nav-brand" href="#" aria-label="CADI – Centre for Academic Development and Innovation homepage">
-    <div class="nav-logo" aria-hidden="true"><span class="nav-logo-text">CADI</span></div>
-    <span class="nav-brand-label">Centre for Academic Development &amp; Innovation</span>
-  </a>
-  <div class="nav-links">
-    <a href="#">CPD</a>
-    <a href="#">Fellowship</a>
-    <a href="#">Resources</a>
-    <a href="#">Conference</a>
-    <a href="#">Contact</a>
-  </div>
-</nav>
+const GITHUB_RAW_INDEX_URL =
+  "https://raw.githubusercontent.com/University-of-Portsmouth-Web-Team/CADI_Claude_Agentic_Search/main/search-index.json";
 
-<main id="main-content">
+// ============================================================================
+// FALLBACK INDEX — same as search page
+// ============================================================================
+const FALLBACK_INDEX = [
+  { id: 1,  url: "https://cadi.port.ac.uk/cpd-support",                  title: "CPD and Support",                      excerpt: "The main hub for Continuing Professional Development opportunities at the University of Portsmouth.",             content: "CPD opportunities including workshops on active blended learning, assessment design, digital tools, AdvanceHE fellowship pathways, PGCertHE, and peer observation schemes. Timetabled sessions throughout the academic year.", type: "page",     tags: ["cpd", "professional development", "fellowship", "workshops", "training"] },
+  { id: 2,  url: "https://cadi.port.ac.uk/fellowship",                   title: "AdvanceHE Fellowship",                  excerpt: "Routes to achieving Fellowship of AdvanceHE — Associate, Fellow, Senior Fellow, Principal Fellow.",               content: "Fellowship pathways: D1 Associate Fellow, D2 Fellow (FHEA), D3 Senior Fellow, D4 Principal Fellow. PGCertHE leads to fellowship. CATE awards.",                                                                             type: "page",     tags: ["fellowship", "advancehe", "hea", "pgcerthe", "cate"] },
+  { id: 3,  url: "https://cadi.port.ac.uk/cpd-timetable",               title: "CPD Timetable",                         excerpt: "View and book upcoming CPD sessions, workshops and events.",                                                     content: "Full CPD timetable: ABL workshops, assessment design, digital tools, fellowship preparation, peer observation, inclusive curriculum. CPD catalogue. CPD calendar.",                                                          type: "page",     tags: ["cpd", "timetable", "calendar", "workshops", "catalogue"] },
+  { id: 4,  url: "https://cadi.port.ac.uk/peer-observation",            title: "Peer Observation",                      excerpt: "The peer observation scheme supports reflective teaching through collaborative observation.",                    content: "Peer observation for professional development. ObserveWell platform for recording observations. Observation links to fellowship evidence.",                                                                                 type: "page",     tags: ["peer observation", "observe", "observewell", "teaching practice"] },
+  { id: 5,  url: "https://cadi.port.ac.uk/active-blended-learning",     title: "Active Blended Learning (ABL)",         excerpt: "The ABL framework underpins curriculum design at the University of Portsmouth.",                               content: "Active Blended Learning combines online and face-to-face activities. Seven learning types: assimilative, finding and handling information, communicative, productive, experiential, interactive, adaptive.",               type: "page",     tags: ["active blended learning", "abl", "pedagogy", "curriculum design", "learning types"] },
+  { id: 6,  url: "https://cadi.port.ac.uk/assessment-information-resource", title: "Assessment Information Resource (AIR)", excerpt: "Guidance on assessment design, authentic assessment, categorical marking and reasonable adjustments.",        content: "Authentic assessment design, categorical marking guidance, reasonable adjustments, assessment choice, learning outcomes alignment.",                                                                                         type: "resource", tags: ["assessment", "air", "authentic assessment", "categorical marking", "reasonable adjustments"] },
+  { id: 7,  url: "https://cadi.port.ac.uk/enable",                      title: "enABLe — Inclusive Curriculum",        excerpt: "enABLe supports inclusive curriculum design and accessible learning resources.",                               content: "Inclusive curriculum design, accessible resources, accessibility guidelines, Universal Design for Learning (UDL), reasonable adjustments.",                                                                                  type: "page",     tags: ["enable", "accessibility", "inclusive curriculum", "accessible resources"] },
+  { id: 8,  url: "https://cadi.port.ac.uk/learning-teaching-conference-2026", title: "Learning and Teaching Conference 2026", excerpt: "Annual conference showcasing innovative teaching practice. Call for papers now open.",                  content: "2026 Learning and Teaching Conference. Call for papers open. Theme: Connected Curriculum.",                                                                                                                                  type: "event",    tags: ["conference", "learning and teaching", "call for papers", "ltc2026"] },
+  { id: 9,  url: "https://cadi.port.ac.uk/panopto",                     title: "Panopto — Video Capture",              excerpt: "Panopto is the University's video capture and streaming platform.",                                           content: "Panopto: lecture recording, screen capture, Smart Capture, video streaming. Integrated with Moodle.",                                                                                                                        type: "resource", tags: ["panopto", "video", "smart capture", "lecture recording"] },
+  { id: 10, url: "https://cadi.port.ac.uk/connected-curriculum",        title: "Connected Curriculum",                 excerpt: "The Connected Curriculum framework connects learning across six dimensions.",                                  content: "Connected Curriculum: connects with research, progression, research community, wider world, each other across disciplines.",                                                                                                  type: "page",     tags: ["connected curriculum", "curriculum design", "research", "blended and connected"] },
+];
 
-<section aria-labelledby="hero-heading">
-  <div class="hero">
-    <div>
-      <p class="hero-eyebrow" aria-hidden="true">Academic development support</p>
-      <h1 id="hero-heading" class="hero-title">
-        Supporting
-        <strong>excellent teaching</strong>
-        at every stage
-      </h1>
-      <p class="hero-body">CADI offers CPD, fellowship pathways, peer observation, and learning design support to help academic staff develop and thrive.</p>
-      <div class="hero-chips" role="list" aria-label="Quick topic suggestions">
-        <button role="listitem" class="chip" onclick="openChatWith('What CPD sessions are coming up?')">CPD timetable</button>
-        <button role="listitem" class="chip" onclick="openChatWith('How do I get AdvanceHE fellowship?')">AdvanceHE Fellowship</button>
-        <button role="listitem" class="chip" onclick="openChatWith('What is authentic assessment?')">Authentic assessment</button>
-        <button role="listitem" class="chip" onclick="openChatWith('Tell me about peer observation')">Peer observation</button>
-        <button role="listitem" class="chip" onclick="openChatWith('What is active blended learning?')">Active blended learning</button>
-      </div>
-      <button class="btn-primary" id="hero-chat-btn" onclick="toggleChat()" aria-expanded="false" aria-controls="chat-panel">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Ask CADI Assist
-      </button>
-    </div>
-    <div class="hero-visual">
-      <div class="stats-panel" aria-label="Top search terms this term">
-        <p class="stats-panel-title" id="stats-title">Top searches · Mar–Apr 2026</p>
-        <div role="list" aria-labelledby="stats-title">
-          <div role="listitem" class="stat-row"><span class="stat-label">CPD timetable</span><span class="stat-value">8 searches</span></div>
-          <div role="listitem" class="stat-row"><span class="stat-label">Fellowship</span><span class="stat-value">6 searches</span></div>
-          <div role="listitem" class="stat-row"><span class="stat-label">Authentic assessment</span><span class="stat-value">5 searches</span></div>
-          <div role="listitem" class="stat-row"><span class="stat-label">Peer observation</span><span class="stat-value">4 searches</span></div>
-          <div role="listitem" class="stat-row"><span class="stat-label">L&amp;T Conference 2026</span><span class="stat-value">4 searches</span></div>
-          <div role="listitem" class="stat-row"><span class="stat-label">Panopto · Padlet · enABLe</span><span class="stat-value">3 searches</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+// ============================================================================
+// EXAMPLE PROMPTS
+// ============================================================================
+const EXAMPLE_PROMPTS = [
+  "How do I get AdvanceHE Fellowship?",
+  "What CPD sessions are coming up?",
+  "Tell me about peer observation",
+  "What is active blended learning?",
+  "Learning and Teaching Conference 2026",
+];
 
-<section class="section" aria-labelledby="help-heading">
-  <div class="section-inner">
-    <h2 id="help-heading" class="section-title">How we can help</h2>
-    <p class="section-subtitle">Support for every part of your academic practice</p>
-    <div class="cards-grid">
-      <div class="card">
-        <div class="card-accent" aria-hidden="true"></div>
-        <h3 class="card-title">Professional Development</h3>
-        <p class="card-body">Browse our CPD catalogue, book workshops and track your learning through our dedicated timetable of sessions throughout the year.</p>
-        <a href="#" class="card-link">View CPD catalogue →</a>
-      </div>
-      <div class="card">
-        <div class="card-accent" aria-hidden="true"></div>
-        <h3 class="card-title">Fellowship Pathways</h3>
-        <p class="card-body">Gain AdvanceHE recognition as an Associate Fellow, Fellow, Senior Fellow or Principal Fellow with dedicated CADI support and guidance.</p>
-        <a href="#" class="card-link">Explore fellowship →</a>
-      </div>
-      <div class="card">
-        <div class="card-accent" aria-hidden="true"></div>
-        <h3 class="card-title">Learning Design</h3>
-        <p class="card-body">Explore active blended learning, connected curriculum, authentic assessment and inclusive design with practical frameworks and resources.</p>
-        <a href="#" class="card-link">Browse resources →</a>
-      </div>
-    </div>
-  </div>
-</section>
+// ============================================================================
+// COLOURS — identical to search page
+// ============================================================================
+const C = {
+  primaryDark:   "#3C023C",
+  primary:       "#621360",
+  secondaryDark: "#0078B4",
+  secondary:     "#00A0FF",
+  black:         "#000000",
+  darkGrey:      "#505457",
+  midGrey:       "#ABAAAA",
+  lightGrey:     "#D1D1D1",
+  lighterGrey:   "#F7F7F7",
+  offWhite:      "#FAFAFA",
+  white:         "#FFFFFF",
+};
+const T = {
+  bg:        C.primaryDark,
+  text:      C.offWhite,
+  subtext:   C.lightGrey,
+  muted:     C.midGrey,
+  border:    "rgba(255,255,255,0.1)",
+  card:      "rgba(255,255,255,0.04)",
+  cardHover: "rgba(255,255,255,0.07)",
+};
 
-</main>
+// ============================================================================
+// AGENT STEP LABELS
+// ============================================================================
+const AGENT_STEPS = [
+  "Reading knowledge base…",
+  "Understanding your question…",
+  "Composing response…",
+];
 
-<!-- CHAT -->
-<button
-  id="chat-bubble"
-  onclick="toggleChat()"
-  aria-label="Open CADI Assist chat"
-  aria-expanded="false"
-  aria-controls="chat-panel"
->
-  <span class="chat-badge" aria-label="1 new message">1</span>
-  <svg id="bubble-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  <svg id="bubble-close" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" stroke="white" stroke-width="2.5"/><line x1="6" y1="6" x2="18" y2="18" stroke="white" stroke-width="2.5"/></svg>
-</button>
+// ============================================================================
+// APP
+// ============================================================================
+const { useState, useEffect, useRef, useCallback } = React;
 
-<div id="chat-panel" role="dialog" aria-modal="true" aria-label="CADI Assist – academic development support chat">
-  <h2 class="sr-only">CADI Assist chat window</h2>
+function App() {
+  const [messages,  setMessages]  = useState([]);
+  const [input,     setInput]     = useState("");
+  const [loading,   setLoading]   = useState(false);
+  const [pageIndex, setPageIndex] = useState(FALLBACK_INDEX);
+  const [steps,     setSteps]     = useState([]);
 
-  <div class="chat-header">
-    <div class="chat-header-logo" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </div>
-    <div class="chat-header-info">
-      <div class="chat-header-name">CADI Assist</div>
-      <div class="chat-header-status" aria-live="polite">
-        <span class="status-dot" aria-hidden="true"></span>
-        Active · Academic development support
-      </div>
-    </div>
-    <button class="chat-header-clear" onclick="clearChat()" aria-label="Clear conversation">Clear</button>
-  </div>
+  const messagesEndRef = useRef(null);
+  const inputRef       = useRef(null);
+  const stepsTimers    = useRef([]);
 
-  <div id="chat-messages" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions"></div>
-
-  <div class="chat-input-area">
-    <label for="chat-input" class="sr-only">Type your message to CADI Assist</label>
-    <textarea
-      id="chat-input" rows="1"
-      placeholder="Ask about CPD, fellowship, assessment…"
-      onkeydown="handleKey(event)"
-      oninput="autoResize(this)"
-    ></textarea>
-    <button id="send-btn" onclick="sendMessage()" aria-label="Send message">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-  <div class="chat-footer" aria-hidden="true">Powered by Claude · CADI Academic Support</div>
-</div>
-
-<script>
-const SYSTEM = `You are CADI Assist, a helpful and friendly academic development assistant for the Centre for Academic Development & Innovation (CADI) at a UK university.
-
-Help academic staff with:
-- CPD sessions, timetables, workshops, and the CPD catalogue
-- AdvanceHE Fellowship pathways (Associate Fellow, Fellow, Senior Fellow, Principal Fellow) and PgCert HE
-- Peer observation and the Observe Well programme
-- Active Blended Learning, Connected Curriculum, learning design
-- Authentic assessment, categorical marking, reasonable adjustments
-- Inclusive curriculum design and accessibility
-- APEX, enABLe, PrepUp and other university programmes
-- Panopto, Padlet, Moodle and learning technologies
-- The Learning and Teaching Conference 2026
-- TESTA and AIR (Assessment Information Resource)
-
-Write 2–3 short paragraphs. Be warm, concise, and clear. Use plain English. When you don't have specific dates or details, acknowledge this and suggest checking the CADI website or emailing the team. Always end with a brief offer to help further.`;
-
-let messages = [], loading = false, open = false;
-
-function toggleChat() {
-  open = !open;
-  const panel = document.getElementById('chat-panel');
-  const bubble = document.getElementById('chat-bubble');
-  panel.classList.toggle('open', open);
-  bubble.classList.toggle('open', open);
-  bubble.setAttribute('aria-expanded', String(open));
-  document.getElementById('hero-chat-btn').setAttribute('aria-expanded', String(open));
-  document.querySelector('.chat-badge').style.display = 'none';
-  if (open && messages.length === 0) showWelcome();
-  if (open) setTimeout(() => document.getElementById('chat-input').focus(), 240);
-}
-
-function openChatWith(text) {
-  if (!open) { toggleChat(); setTimeout(() => fire(text), 360); }
-  else fire(text);
-}
-function fire(text) {
-  document.getElementById('chat-input').value = text;
-  sendMessage();
-}
-
-function clearChat() {
-  messages = [];
-  showWelcome();
-  document.getElementById('chat-input').focus();
-}
-
-function showWelcome() {
-  const el = document.getElementById('chat-messages');
-  el.innerHTML = '';
-  const div = document.createElement('div');
-  div.innerHTML = `
-    <div class="welcome-intro">
-      <strong>Hello, welcome to CADI Assist.</strong> I can help you find CPD sessions, explore fellowship pathways, understand assessment approaches, and much more. What are you looking for today?
-    </div>
-    <p class="suggestion-label" aria-hidden="true">Suggested topics</p>
-    <div class="suggestions" role="list" aria-label="Suggested questions">
-      <button role="listitem" class="suggestion-chip" onclick="openChatWith('What CPD sessions are available?')">CPD sessions</button>
-      <button role="listitem" class="suggestion-chip" onclick="openChatWith('How do I apply for AdvanceHE fellowship?')">Fellowship routes</button>
-      <button role="listitem" class="suggestion-chip" onclick="openChatWith('What is authentic assessment?')">Authentic assessment</button>
-      <button role="listitem" class="suggestion-chip" onclick="openChatWith('Tell me about peer observation')">Peer observation</button>
-      <button role="listitem" class="suggestion-chip" onclick="openChatWith('What is active blended learning?')">Active blended learning</button>
-      <button role="listitem" class="suggestion-chip" onclick="openChatWith('Tell me about the 2026 learning and teaching conference')">L&amp;T Conference 2026</button>
-    </div>`;
-  el.appendChild(div);
-}
-
-function addMsg(role, html) {
-  const wrap = document.getElementById('chat-messages');
-  const el = document.createElement('div');
-  el.className = `msg ${role}`;
-  const avatarHtml = role === 'bot'
-    ? `<div class="msg-avatar bot-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>`
-    : `<div class="msg-avatar user-avatar" aria-hidden="true">You</div>`;
-  el.innerHTML = `${avatarHtml}<div class="msg-bubble">${html}</div>`;
-  wrap.appendChild(el);
-  wrap.scrollTop = wrap.scrollHeight;
-  return el;
-}
-
-function showThinking() {
-  const wrap = document.getElementById('chat-messages');
-  const el = document.createElement('div');
-  el.id = 'thinking'; el.className = 'msg bot';
-  el.setAttribute('aria-label', 'CADI Assist is thinking');
-  el.innerHTML = `
-    <div class="msg-avatar bot-avatar" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </div>
-    <div class="agent-steps-wrap" id="steps-wrap" aria-live="polite"></div>`;
-  wrap.appendChild(el);
-  wrap.scrollTop = wrap.scrollHeight;
-  ['Searching CADI knowledge base…','Reading relevant pages…','Composing response…'].forEach((label, i) => {
-    setTimeout(() => {
-      const s = document.createElement('div');
-      s.className = 'agent-step';
-      s.innerHTML = `<div class="step-spinner" aria-hidden="true"></div><span>${label}</span>`;
-      document.getElementById('steps-wrap').appendChild(s);
-      wrap.scrollTop = wrap.scrollHeight;
-    }, i * 520);
-  });
-  return el;
-}
-
-function completeSteps() {
-  document.querySelectorAll('.agent-step').forEach(s => {
-    const sp = s.querySelector('.step-spinner');
-    if (!sp) return;
-    const done = document.createElement('div');
-    done.className = 'step-done';
-    done.innerHTML = `<svg viewBox="0 0 10 10" aria-hidden="true"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5"/></svg>`;
-    sp.replaceWith(done);
-  });
-}
-
-function inferSources(q) {
-  q = q.toLowerCase();
-  const map = [
-    [['cpd','session','workshop','timetable','catalogue'],'CPD Catalogue'],
-    [['fellowship','advance','fellow','pgcert'],'Fellowship Pathways'],
-    [['assessment','authentic','categorical','marking'],'Assessment Resources'],
-    [['observation','observe'],'Peer Observation Guide'],
-    [['conference','l&t','learning and teaching'],'L&T Conference 2026'],
-    [['panopto','padlet','moodle','technology'],'Technology Guides'],
-    [['apex','enable','prepup'],'Student Support Programmes'],
-    [['blended','abl','connected','curriculum'],'Learning Design Hub'],
-  ];
-  return map.filter(([kws]) => kws.some(k => q.includes(k))).map(([,l]) => l).slice(0,3);
-}
-
-function fmt(text) {
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g,'<em>$1</em>')
-    .replace(/^[-•] (.+)$/gm,'<span style="display:block;padding-left:1em;text-indent:-1em">&bull; $1</span>')
-    .replace(/\n\n/g,'</p><p style="margin-top:0.5em">')
-    .replace(/\n/g,'<br>').replace(/^/,'<p>').replace(/$/,'</p>');
-}
-
-async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const txt = input.value.trim();
-  if (!txt || loading) return;
-  input.value = ''; autoResize(input);
-  loading = true;
-  document.getElementById('send-btn').disabled = true;
-  addMsg('user', txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
-  messages.push({ role:'user', content: txt });
-  const thinking = showThinking();
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:SYSTEM, messages })
-    });
-    const data = await res.json();
-    const reply = data.content?.find(b => b.type==='text')?.text || 'Sorry, I could not generate a response. Please try again.';
-    completeSteps();
-    await new Promise(r => setTimeout(r, 380));
-    thinking.remove();
-    messages.push({ role:'assistant', content: reply });
-    const msgEl = addMsg('bot', fmt(reply));
-    const sources = inferSources(txt);
-    if (sources.length) {
-      const sr = document.createElement('div');
-      sr.className = 'sources-row';
-      sr.setAttribute('aria-label','Related resources');
-      sr.innerHTML = sources.map(s => `<span class="source-chip">${s}</span>`).join('');
-      msgEl.querySelector('.msg-bubble').appendChild(sr);
+  // Load live index
+  useEffect(() => {
+    if (!GITHUB_RAW_INDEX_URL.includes("YOUR-ORG")) {
+      fetch(GITHUB_RAW_INDEX_URL)
+        .then(r => r.json())
+        .then(data => { if (data.pages?.length > 0) setPageIndex(data.pages); })
+        .catch(() => {});
     }
-  } catch {
-    completeSteps(); thinking.remove();
-    addMsg('bot','I\'m having trouble connecting right now. Please try again or <a href="mailto:cadi@university.ac.uk" style="color:var(--secondary-dark);font-weight:600">contact CADI directly</a>.');
+  }, []);
+
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, steps]);
+
+  // Build system prompt with index as knowledge
+  const buildSystemPrompt = useCallback((index) => {
+    const knowledge = index.map(p =>
+      `TITLE: ${p.title}\nURL: ${p.url}\nTYPE: ${p.type}\nSUMMARY: ${p.excerpt}\nDETAIL: ${(p.content || "").slice(0, 500)}\nTAGS: ${(p.tags || []).join(", ")}`
+    ).join("\n\n---\n\n");
+
+    return `You are CADI Assist, a helpful conversational assistant for the Centre for Academic Development & Innovation (CADI) at the University of Portsmouth.
+
+You help academic staff find information about CPD, fellowship pathways, peer observation, learning design, assessment, inclusive curriculum, learning technologies, and CADI events.
+
+Use the knowledge base below to answer questions. When a page is relevant, naturally mention it and include its URL as a markdown link. Be warm, concise, and conversational — 2 to 4 short paragraphs maximum. Use plain English. If you don't have specific information (like exact dates), say so and direct the person to check the CADI website or contact the team.
+
+KNOWLEDGE BASE:
+${knowledge}`;
+  }, []);
+
+  const startSteps = () => {
+    setSteps([]);
+    stepsTimers.current.forEach(clearTimeout);
+    stepsTimers.current = AGENT_STEPS.map((label, i) =>
+      setTimeout(() => setSteps(prev => [...prev, label]), i * 550)
+    );
+  };
+
+  const clearStepTimers = () => {
+    stepsTimers.current.forEach(clearTimeout);
+    setSteps([]);
+  };
+
+  const send = useCallback(async (text) => {
+    const trimmed = (text || input).trim();
+    if (!trimmed || loading) return;
+
+    setInput("");
+    setLoading(true);
+    setMessages(prev => [...prev, { role: "user", text: trimmed }]);
+
+    startSteps();
+
+    // Build conversation history for API
+    const history = messages.map(m => ({
+      role: m.role === "user" ? "user" : "assistant",
+      content: m.text,
+    }));
+    history.push({ role: "user", content: trimmed });
+
+    try {
+      const resp = await fetch(PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: buildSystemPrompt(pageIndex),
+          messages: history,
+        }),
+      });
+
+      const data  = await resp.json();
+      if (data.error) throw new Error(data.error.message || "API error");
+      const reply = data.content?.find(b => b.type === "text")?.text || "Sorry, I couldn't generate a response.";
+
+      clearStepTimers();
+      setMessages(prev => [...prev, { role: "assistant", text: reply }]);
+    } catch (e) {
+      clearStepTimers();
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        text: "I'm having trouble connecting right now. Please try again in a moment.",
+        error: true,
+      }]);
+    }
+
+    setLoading(false);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }, [input, loading, messages, pageIndex, buildSystemPrompt]);
+
+  const handleKey = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  };
+
+  const clearChat = () => {
+    setMessages([]);
+    clearStepTimers();
+    setLoading(false);
+    setInput("");
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  // ── Styles ────────────────────────────────────────────────────────────────
+  const s = {
+    root: {
+      display: "flex",
+      flexDirection: "column",
+      height: "100vh",
+      background: `linear-gradient(160deg, ${C.primaryDark} 0%, ${C.primary} 60%, ${C.primaryDark} 100%)`,
+      color: T.text,
+      fontFamily: "'Open Sans', sans-serif",
+    },
+
+    // Header
+    header: {
+      position: "relative",
+      overflow: "hidden",
+      background: "rgba(0,0,0,0.35)",
+      borderBottom: `2px solid ${C.secondary}`,
+      padding: "14px 32px",
+      display: "flex",
+      alignItems: "center",
+      gap: 14,
+      flexShrink: 0,
+    },
+    logoMark: {
+      width: 36, height: 36,
+      background: `linear-gradient(135deg, ${C.secondary} 0%, ${C.secondaryDark} 100%)`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontWeight: 800, fontSize: 13,
+      color: C.white, letterSpacing: 0.5, flexShrink: 0,
+    },
+    logoText: {
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontWeight: 700, fontSize: 17,
+      color: C.white, letterSpacing: 1, lineHeight: 1.1,
+    },
+    logoSub: {
+      fontSize: 9, color: T.muted,
+      letterSpacing: 1.5, textTransform: "uppercase", marginTop: 1,
+    },
+    divider: {
+      width: 1, height: 36,
+      background: "rgba(0,160,255,0.3)",
+      margin: "0 10px",
+    },
+    headerLabel: {
+      fontSize: 11, color: T.muted,
+      letterSpacing: 2, textTransform: "uppercase",
+    },
+    badge: {
+      marginLeft: "auto",
+      fontSize: 10,
+      background: "rgba(0,160,255,0.15)",
+      border: "1px solid rgba(0,160,255,0.4)",
+      padding: "4px 12px",
+      color: C.secondary,
+      letterSpacing: 1, fontWeight: 600, textTransform: "uppercase",
+    },
+
+    // Messages area
+    messagesArea: {
+      flex: 1,
+      overflowY: "auto",
+      padding: "32px",
+      display: "flex",
+      flexDirection: "column",
+      gap: 0,
+      maxWidth: 800,
+      width: "100%",
+      margin: "0 auto",
+      alignSelf: "center",
+    },
+
+    // Empty state
+    emptyWrap: {
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      maxWidth: 800,
+      width: "100%",
+      margin: "0 auto",
+      padding: "32px",
+    },
+    eyebrow: {
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontSize: 10, fontWeight: 600,
+      letterSpacing: 3, textTransform: "uppercase",
+      color: C.secondary, marginBottom: 12,
+    },
+    h1: {
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontSize: "clamp(24px, 4vw, 40px)",
+      fontWeight: 800,
+      color: C.white,
+      margin: "0 0 10px",
+      lineHeight: 1.15,
+      letterSpacing: -0.5,
+    },
+    subtitle: {
+      fontSize: 14, color: T.muted,
+      margin: "0 0 32px", lineHeight: 1.6,
+    },
+    chipWrap: {
+      display: "flex", flexWrap: "wrap", gap: 8,
+    },
+    chip: {
+      background: "rgba(0,0,0,0.25)",
+      border: "1px solid rgba(255,255,255,0.1)",
+      padding: "7px 16px",
+      fontSize: 12, color: T.muted,
+      cursor: "pointer",
+      fontFamily: "'Open Sans', sans-serif",
+      transition: "all 0.15s",
+    },
+
+    // Message bubbles
+    msgWrap: {
+      display: "flex",
+      gap: 14,
+      marginBottom: 24,
+      animation: "fadeSlideUp 0.25s ease",
+    },
+    msgAvatar: (role) => ({
+      width: 30, height: 30,
+      background: role === "user"
+        ? "rgba(255,255,255,0.08)"
+        : `linear-gradient(135deg, ${C.secondary} 0%, ${C.secondaryDark} 100%)`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      flexShrink: 0, marginTop: 2,
+      fontFamily: "'Encode Sans Expanded', sans-serif",
+      fontSize: 11, fontWeight: 800, color: C.white,
+    }),
+    msgContent: {
+      flex: 1, minWidth: 0,
+    },
+    msgLabel: {
+      fontSize: 10, fontWeight: 700,
+      letterSpacing: 1.5, textTransform: "uppercase",
+      marginBottom: 6,
+    },
+    msgBubble: (role, isError) => ({
+      padding: "14px 18px",
+      background: role === "user"
+        ? "rgba(0,0,0,0.2)"
+        : isError
+          ? "rgba(220,38,38,0.1)"
+          : "rgba(0,0,0,0.25)",
+      border: role === "user"
+        ? "1px solid rgba(255,255,255,0.08)"
+        : isError
+          ? "1px solid rgba(220,38,38,0.3)"
+          : "1px solid rgba(0,160,255,0.15)",
+      borderLeft: role === "assistant" && !isError
+        ? `3px solid ${C.secondary}`
+        : undefined,
+      fontSize: 14,
+      lineHeight: 1.7,
+      color: isError ? "#fca5a5" : T.subtext,
+    }),
+
+    // Thinking indicator
+    thinkingWrap: {
+      display: "flex", gap: 14, marginBottom: 24,
+    },
+    thinkingBubble: {
+      padding: "14px 18px",
+      background: "rgba(0,0,0,0.25)",
+      border: `1px solid rgba(0,160,255,0.15)`,
+      borderLeft: `3px solid ${C.secondary}`,
+      flex: 1,
+    },
+    stepRow: {
+      display: "flex", alignItems: "center", gap: 8,
+      fontSize: 12, color: T.muted,
+      padding: "3px 0",
+      animation: "stepIn 0.25s ease",
+    },
+    stepDot: {
+      width: 6, height: 6,
+      background: C.secondary,
+      flexShrink: 0,
+    },
+    stepSpinner: {
+      width: 10, height: 10,
+      border: `1.5px solid ${C.secondary}`,
+      borderTopColor: "transparent",
+      animation: "spin 0.7s linear infinite",
+      flexShrink: 0,
+    },
+
+    // Input bar
+    inputBar: {
+      background: "rgba(0,0,0,0.35)",
+      borderTop: `1px solid rgba(255,255,255,0.08)`,
+      padding: "16px 32px",
+      flexShrink: 0,
+    },
+    inputInner: {
+      maxWidth: 800, margin: "0 auto",
+      display: "flex", gap: 10, alignItems: "flex-end",
+    },
+    textarea: {
+      flex: 1,
+      padding: "12px 18px",
+      fontSize: 14,
+      background: "rgba(0,0,0,0.3)",
+      border: "1.5px solid rgba(0,160,255,0.3)",
+      color: T.text,
+      outline: "none",
+      fontFamily: "'Open Sans', sans-serif",
+      resize: "none",
+      lineHeight: 1.5,
+      minHeight: 46, maxHeight: 120,
+      transition: "border-color 0.2s",
+    },
+    sendBtn: (disabled) => ({
+      width: 46, height: 46,
+      background: disabled
+        ? "rgba(0,120,180,0.4)"
+        : `linear-gradient(135deg, ${C.secondary} 0%, ${C.secondaryDark} 100%)`,
+      border: "none",
+      cursor: disabled ? "default" : "pointer",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      flexShrink: 0, transition: "opacity 0.2s",
+    }),
+    clearBtn: {
+      background: "none",
+      border: "1px solid rgba(255,255,255,0.15)",
+      padding: "8px 14px",
+      color: T.muted,
+      fontSize: 11, fontWeight: 600,
+      letterSpacing: 1, textTransform: "uppercase",
+      cursor: "pointer",
+      fontFamily: "'Open Sans', sans-serif",
+      flexShrink: 0, transition: "all 0.15s",
+    },
+    hint: {
+      textAlign: "center", fontSize: 11,
+      color: T.muted, marginTop: 10, letterSpacing: 0.5,
+    },
+  };
+
+  // ── Markdown-ish renderer ────────────────────────────────────────────────
+  function renderText(text) {
+    // Convert markdown links [text](url) to <a>
+    const parts = text.split(/(\[.*?\]\(.*?\)|\*\*.*?\*\*|\*.*?\*)/g);
+    return parts.map((part, i) => {
+      const link = part.match(/^\[(.*?)\]\((.*?)\)$/);
+      if (link) return <a key={i} href={link[2]} target="_blank" rel="noopener noreferrer" style={{ color: C.secondary, textDecoration: "underline" }}>{link[1]}</a>;
+      const bold = part.match(/^\*\*(.*?)\*\*$/);
+      if (bold) return <strong key={i}>{bold[1]}</strong>;
+      const em = part.match(/^\*(.*?)\*$/);
+      if (em) return <em key={i}>{em[1]}</em>;
+      return part;
+    });
   }
-  loading = false;
-  document.getElementById('send-btn').disabled = false;
-  document.getElementById('chat-input').focus();
+
+  function renderMessage(text) {
+    return text.split("\n").map((line, i) => (
+      <p key={i} style={{ margin: i > 0 ? "8px 0 0" : 0 }}>{renderText(line)}</p>
+    ));
+  }
+
+  const isEmpty = messages.length === 0 && !loading;
+
+  return (
+    <div style={s.root}>
+
+      {/* ── Header ── */}
+      <header style={s.header}>
+        <div className="header-accent" />
+        <div style={s.logoMark}>C</div>
+        <div>
+          <div style={s.logoText}>CADI</div>
+          <div style={s.logoSub}>Centre for Academic &amp; Digital Innovation</div>
+        </div>
+        <div style={s.divider} />
+        <span style={s.headerLabel}>Assist</span>
+        <div style={s.badge}>Powered by Claude</div>
+      </header>
+
+      {/* ── Body ── */}
+      {isEmpty ? (
+
+        /* Empty / welcome state */
+        <div style={s.emptyWrap}>
+          <p style={s.eyebrow}>University of Portsmouth</p>
+          <h1 style={s.h1}>
+            How can I<br />
+            <span style={{ color: C.secondary }}>help you today?</span>
+          </h1>
+          <p style={s.subtitle}>
+            Ask me anything about CPD, fellowship, assessment, learning design and more
+          </p>
+          <div style={s.chipWrap}>
+            {EXAMPLE_PROMPTS.map(q => (
+              <button
+                key={q}
+                onClick={() => send(q)}
+                style={s.chip}
+                onMouseEnter={e => {
+                  e.target.style.background = "rgba(0,160,255,0.12)";
+                  e.target.style.borderColor = "rgba(0,160,255,0.4)";
+                  e.target.style.color = C.secondary;
+                }}
+                onMouseLeave={e => {
+                  e.target.style.background = "rgba(0,0,0,0.25)";
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.color = T.muted;
+                }}
+              >{q}</button>
+            ))}
+          </div>
+        </div>
+
+      ) : (
+
+        /* Messages */
+        <div style={s.messagesArea}>
+
+          {messages.map((msg, i) => (
+            <div key={i} style={s.msgWrap}>
+              <div style={s.msgAvatar(msg.role)}>
+                {msg.role === "user" ? "You" : "C"}
+              </div>
+              <div style={s.msgContent}>
+                <div style={{ ...s.msgLabel, color: msg.role === "user" ? T.muted : C.secondary }}>
+                  {msg.role === "user" ? "You" : "CADI Assist"}
+                </div>
+                <div style={s.msgBubble(msg.role, msg.error)}>
+                  {renderMessage(msg.text)}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Thinking indicator */}
+          {loading && (
+            <div style={s.thinkingWrap}>
+              <div style={s.msgAvatar("assistant")}>C</div>
+              <div style={s.msgContent}>
+                <div style={{ ...s.msgLabel, color: C.secondary }}>CADI Assist</div>
+                <div style={s.thinkingBubble}>
+                  {steps.map((label, i) => (
+                    <div key={i} style={s.stepRow}>
+                      {i === steps.length - 1
+                        ? <div style={s.stepSpinner} />
+                        : <div style={s.stepDot} />
+                      }
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                  {steps.length === 0 && (
+                    <div style={{ display: "flex", gap: 5 }}>
+                      {[0,1,2].map(i => (
+                        <div key={i} style={{
+                          width: 7, height: 7,
+                          background: C.secondary,
+                          animation: `bounce 1s ease-in-out ${i * 0.15}s infinite`,
+                        }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+      )}
+
+      {/* ── Input bar ── */}
+      <div style={s.inputBar}>
+        <div style={s.inputInner}>
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            onFocus={e => { e.target.style.borderColor = C.secondary; }}
+            onBlur={e => { e.target.style.borderColor = "rgba(0,160,255,0.3)"; }}
+            onInput={e => {
+              e.target.style.height = "auto";
+              e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+            }}
+            placeholder="Ask about CPD, fellowship, assessment, learning design…"
+            disabled={loading}
+            style={s.textarea}
+            rows={1}
+          />
+          <button
+            onClick={() => send()}
+            disabled={loading || !input.trim()}
+            style={s.sendBtn(loading || !input.trim())}
+            onMouseEnter={e => { if (!loading && input.trim()) e.currentTarget.style.opacity = "0.85"; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+          >
+            {loading ? (
+              <span style={{ width: 18, height: 18, border: `2.5px solid ${C.white}`, borderTopColor: "transparent", display: "block", animation: "spin 0.7s linear infinite" }} />
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.white} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            )}
+          </button>
+          {messages.length > 0 && (
+            <button
+              onClick={clearChat}
+              style={s.clearBtn}
+              onMouseEnter={e => { e.target.style.borderColor = "rgba(255,255,255,0.3)"; e.target.style.color = C.white; }}
+              onMouseLeave={e => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; e.target.style.color = T.muted; }}
+            >Clear</button>
+          )}
+        </div>
+        <p style={s.hint}>Enter to send · Shift+Enter for new line</p>
+      </div>
+
+    </div>
+  );
 }
 
-function handleKey(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,96)+'px'; }
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 </body>
 </html>
